@@ -199,9 +199,11 @@ async function trackHealthMinions(combatantGroup) {
   if (!minions) return;
 
   const { staminaMax, staminaValue } = combatantGroup.system;
+  const staminaMaxChanged = lastStamina.staminaMax !== staminaMax;
+  const staminaValueChanged = lastStamina.staminaValue !== staminaValue;
 
   // healthbarTicks
-  if (lastStamina.staminaMax !== staminaMax) {
+  if (staminaMaxChanged) {
     minions.forEach(minion => {
       const tokenObj = minion.token?.object;
       if (!tokenObj) return;
@@ -211,7 +213,7 @@ async function trackHealthMinions(combatantGroup) {
   }
 
   // healthLabels
-  if (lastStamina.staminaMax !== staminaMax || lastStamina.staminaValue !== staminaValue) {
+  if (staminaMaxChanged || staminaValueChanged) {
     minions.forEach(minion => {
       const tokenObj = minion.token?.object;
       if (!tokenObj) return;
@@ -222,5 +224,7 @@ async function trackHealthMinions(combatantGroup) {
   }
 
   // new stmaina recorded
-  return grpFlags.set("lastStamina", { staminaMax, staminaValue });
+  if (game.user.isGM && (staminaMaxChanged || staminaValueChanged)) {
+    return grpFlags.set("lastStamina", { staminaMax, staminaValue });
+  }
 }
